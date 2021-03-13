@@ -7,7 +7,7 @@ const plans = require("./plans")
 const features = require("./features")
 const blogs = require("./blogs")
 const contactus = require("./contactUs")
-const company  = require("./company")
+const company = require("./company")
 const contact = require("./contacts")
 const matter = require("./matters")
 const tasks = require("./tasks")
@@ -23,7 +23,7 @@ const Subscription = require("./subscription")
 const Footer = require("./footer")
 const logs = require("./logs")
 const aboutus = require('./aboutUs')
-
+const members = require('./members')
 
 router.use('/contactus', contactus)
 router.use('/logs', logs)
@@ -49,6 +49,7 @@ router.use('/notes', Notes)
 router.use('/subscription', Subscription)
 router.use("/footer", Footer)
 router.use('/aboutus/', aboutus)
+router.use('/members/', members)
 
 
 module.exports = router

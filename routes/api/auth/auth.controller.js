@@ -2,22 +2,22 @@ const jwt = require('jsonwebtoken')
 const User = require('../../../models/user')
 const nodemailer = require("nodemailer")
 
-var request=require('request');
+var request = require('request');
 
 var sesTransport = require('nodemailer-ses-transport');
 
 var SESCREDENTIALS = {
-  accessKeyId : "accesskey" ,
-  secretAccessKey : "secretkey"
+    accessKeyId: "accesskey",
+    secretAccessKey: "secretkey"
 };
 
 var transporter = nodemailer.createTransport(sesTransport({
 
-    
+
     accessKeyId: process.env.accessKeyId,
     secretAccessKey: process.env.secretAccessKey,
 
- 
+
 }));
 
 /*
@@ -29,65 +29,70 @@ var transporter = nodemailer.createTransport(sesTransport({
 */
 
 exports.register = (req, res) => {
-    const {  password,
-
-      firstName,
-    lastName,
-    emailAddress,
-    countryOfPractice,
-    lawFirmSize,
-    phoneNumber,admin}  = req.body
+    const {
+        password,
+        userName,
+        firstName,
+        lastName,
+        emailAddress,
+        countryOfPractice,
+        lawFirmSize,
+        phoneNumber,
+        admin
+    } = req.body
     
+
     // let admin = req.body.admin ? true:false
     let newUser = null
-    
+
     // create a new user if does not exist
     const create = (user) => {
-        if(user) {
+        if (user) {
             throw new Error('Email Address exists')
         } else {
-            return User.create( password,
+            return User.create(
+                userName,
+                password,
                 firstName,
-              lastName,
-              emailAddress,
-              countryOfPractice,
-              lawFirmSize,
-              phoneNumber,
-              admin,
-              
-              )
+                lastName,
+                emailAddress,
+                countryOfPractice,
+                lawFirmSize,
+                phoneNumber,
+                admin,
+            )
 
-            }
+        }
     }
 
     // count the number of the user
     const count = (user) => {
-        console.log({user})
+        console.log({ user })
 
-      
-            var url = "https://precedentonline.com" +'/verified/?token='+user._id;
-          
-          var userEmail = user.emailAddress;
-          var emailText = `<p>Hi ${user.firstName}</p><p>Please <a href="${url}">click here</a> to verify your account and start using our portal.</p><p>Regards</p>Precedent Team`
 
-    
-    
+        var url = "https://precedentonline.com" + '/verified/?token=' + user._id;
+
+        var userEmail = user.emailAddress;
+        var emailText = `<p>Hi ${user.firstName}</p><p>Please <a href="${url}">click here</a> to verify your account and start using our portal.</p><p>Regards</p>Precedent Team`
+
+
+
         //   emailText += '<p><a href="'+url+'">click here</a>';
-          var mailOptions = {
+        var mailOptions = {
             from: 'Precedent Online <admin@precedentonline.com>',
             to: userEmail,
             subject: 'Precedent Online | Verify Your Account',
             html: emailText
-          };
-          
-          transporter.sendMail(mailOptions, function(error, info){
+        };
+
+        transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
-              console.log(error);
-            //   res.json({ 'success': false, 'message': error });
-            } 
-              console.log({ 'success': true, 'message': 'email sent successfully' })
-            
-          });
+                console.log(error);
+                //   res.json({ 'success': false, 'message': error });
+            }
+            console.log({ 'success': true, 'message': 'email sent successfully' })
+
+        });
 
 
         newUser = user
@@ -96,7 +101,7 @@ exports.register = (req, res) => {
 
     // assign admin if count is 1
     const assign = (count) => {
-        if(count === 1) {
+        if (count === 1) {
             return newUser.assignAdmin()
         } else {
             // if not, return a promise that returns false
@@ -107,8 +112,8 @@ exports.register = (req, res) => {
     // respond to the client
     const respond = (isAdmin) => {
 
-      
-        
+
+
         res.json({
             message: 'registered successfully',
             admin: isAdmin ? true : false
@@ -124,11 +129,11 @@ exports.register = (req, res) => {
 
     // check username duplication
     User.findOneByEmailAddress(emailAddress)
-    .then(create)
-    .then(count)
-    .then(assign)
-    .then(respond)
-    .catch(onError)
+        .then(create)
+        .then(count)
+        .then(assign)
+        .then(respond)
+        .catch(onError)
 }
 
 /*
@@ -143,21 +148,21 @@ exports.login = (req, res) => {
     const { password,
 
         firstName,
-      lastName,
-      emailAddress,
-      countryOfPractice,
-      lawFirmSize,
-      phoneNumber} = req.body
+        lastName,
+        emailAddress,
+        countryOfPractice,
+        lawFirmSize,
+        phoneNumber } = req.body
     const secret = req.app.get('jwt-secret')
 
     // check the user info & generate the jwt
     const check = (user) => {
-        if(!user) {
+        if (!user) {
             // user does not exist
             throw new Error('login failed')
         } else {
             // user exists, check the password
-            if(user.verify(password)) {
+            if (user.verify(password)) {
                 // create a promise that generates jwt asynchronously
                 const p = new Promise((resolve, reject) => {
                     jwt.sign(
@@ -165,18 +170,18 @@ exports.login = (req, res) => {
                             _id: user._id,
                             username: user.username,
                             admin: user.admin
-                        }, 
-                        secret, 
+                        },
+                        secret,
                         {
                             expiresIn: '7d',
                             issuer: 'casemanagement',
                             subject: 'userInfo'
                         }, (err, token) => {
                             if (err) reject(err)
-                            resolve(token) 
+                            resolve(token)
                         })
                 })
-                return {user, ...p}
+                return { user, ...p }
             } else {
                 throw new Error('login failed')
             }
@@ -200,9 +205,9 @@ exports.login = (req, res) => {
 
     // find the user
     User.findOneByEmailAddress(emailAddress)
-    .then(check)
-    .then(respond)
-    .catch(onError)
+        .then(check)
+        .then(respond)
+        .catch(onError)
 
 }
 
