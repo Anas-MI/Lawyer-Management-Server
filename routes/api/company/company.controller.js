@@ -41,6 +41,7 @@ exports.createCompany = (req, res) => {
     company.billingClientId=req.body.billingClientId,
     company.employees=req.body.employees
     company.userId=req.body.userId
+    company.userName = req.body.userName
 
 
  

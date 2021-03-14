@@ -40,7 +40,7 @@ exports.register = (req, res) => {
         phoneNumber,
         admin
     } = req.body
-    
+
 
     // let admin = req.body.admin ? true:false
     let newUser = null
@@ -145,14 +145,15 @@ exports.register = (req, res) => {
 */
 
 exports.login = (req, res) => {
-    const { password,
-
+    const { 
+        password,
         firstName,
         lastName,
         emailAddress,
         countryOfPractice,
         lawFirmSize,
-        phoneNumber } = req.body
+        phoneNumber
+    } = req.body
     const secret = req.app.get('jwt-secret')
 
     // check the user info & generate the jwt
