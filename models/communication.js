@@ -8,11 +8,12 @@ const Communication = new Schema({
   from: { type: Schema.Types.ObjectId, ref: "Contacts" },
   subject: String,
   body: String,
-  to:{ type: Schema.Types.ObjectId, ref: "Contacts" },
+  to: { type: Schema.Types.ObjectId, ref: "Contacts" },
   matter: { type: Schema.Types.ObjectId, ref: "Matters" },
-  contact:{ type: Schema.Types.ObjectId, ref: "Contacts" },
+  contact: { type: Schema.Types.ObjectId, ref: "Contacts" },
   userId: { type: Schema.Types.ObjectId, ref: "User" },
   addTime: { type: String },
+  userName: { type: String }
 });
 
 module.exports = mongoose.model("Communication", Communication);
