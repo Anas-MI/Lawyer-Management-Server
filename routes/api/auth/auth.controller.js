@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const User = require('../../../models/user')
 const nodemailer = require("nodemailer")
-
+const Members = require('../../../models/members')
 var request = require('request');
 
 var sesTransport = require('nodemailer-ses-transport');
@@ -145,47 +145,51 @@ exports.register = (req, res) => {
 */
 
 exports.login = (req, res) => {
-    const { 
+    const {
         password,
-        firstName,
-        lastName,
         emailAddress,
-        countryOfPractice,
-        lawFirmSize,
-        phoneNumber
+        userName
     } = req.body
     const secret = req.app.get('jwt-secret')
 
     // check the user info & generate the jwt
-    const check = (user) => {
+    const check = async (user) => {
         if (!user) {
             // user does not exist
             throw new Error('login failed')
         } else {
             // user exists, check the password
-            if (user.verify(password)) {
-                // create a promise that generates jwt asynchronously
-                const p = new Promise((resolve, reject) => {
-                    jwt.sign(
-                        {
-                            _id: user._id,
-                            username: user.username,
-                            admin: user.admin
-                        },
-                        secret,
-                        {
-                            expiresIn: '7d',
-                            issuer: 'casemanagement',
-                            subject: 'userInfo'
-                        }, (err, token) => {
-                            if (err) reject(err)
-                            resolve(token)
-                        })
-                })
-                return { user, ...p }
-            } else {
-                throw new Error('login failed')
+            const member = await Members.findOne({ userName })
+            
+            if (user.userName === userName || member) {
+                if (user.verify(password)) {
+                    // create a promise that generates jwt asynchronously
+                    const p = new Promise((resolve, reject) => {
+                        jwt.sign(
+                            {
+                                _id: user._id,
+                                username: user.username,
+                                admin: user.admin
+                            },
+                            secret,
+                            {
+                                expiresIn: '7d',
+                                issuer: 'casemanagement',
+                                subject: 'userInfo'
+                            }, (err, token) => {
+                                if (err) reject(err)
+                                resolve(token)
+                            })
+                    })
+                    return { user, ...p }
+                } else {
+                    throw new Error('login failed')
+                }
+            }else 
+            if (!member) {
+                throw new Error('Invalid username')
             }
+
         }
     }
 
